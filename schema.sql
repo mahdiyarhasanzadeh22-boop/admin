@@ -15,6 +15,39 @@ create table if not exists public.requests (
   page_url text not null default ''
 );
 
+-- Migrate the first version of the table without deleting existing requests.
+do $$
+begin
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'createdAt')
+    and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'created_at') then
+    alter table public.requests rename column "createdAt" to created_at;
+  end if;
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'fullName')
+    and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'full_name') then
+    alter table public.requests rename column "fullName" to full_name;
+  end if;
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'projectType')
+    and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'project_type') then
+    alter table public.requests rename column "projectType" to project_type;
+  end if;
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'budgetRange')
+    and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'budget_range') then
+    alter table public.requests rename column "budgetRange" to budget_range;
+  end if;
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'proposedPriceToman')
+    and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'proposed_price_toman') then
+    alter table public.requests rename column "proposedPriceToman" to proposed_price_toman;
+  end if;
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'preferredContact')
+    and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'preferred_contact') then
+    alter table public.requests rename column "preferredContact" to preferred_contact;
+  end if;
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'pageUrl')
+    and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'requests' and column_name = 'page_url') then
+    alter table public.requests rename column "pageUrl" to page_url;
+  end if;
+end $$;
+
 alter table public.requests enable row level security;
 
 create index if not exists requests_created_at_idx on public.requests (created_at desc);
