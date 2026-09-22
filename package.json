@@ -5,8 +5,8 @@
   "description": "Backend and admin panel for Mahdiyar Studio collaboration requests",
   "type": "module",
   "scripts": {
-    "dev": "node --watch server.js",
-    "start": "node server.js",
+    "dev": "node --watch local-server.js",
+    "start": "node local-server.js",
     "check": "node --check server.js && node --check api/requests.js && node --check src/requests.js"
   },
   "engines": {
