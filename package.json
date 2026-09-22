@@ -1,0 +1,15 @@
+{
+  "name": "mahdiyarstudio-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend and admin panel for Mahdiyar Studio collaboration requests",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "check": "node --check server.js && node --check api/requests.js && node --check src/requests.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
