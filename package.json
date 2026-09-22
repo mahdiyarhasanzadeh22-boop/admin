@@ -10,6 +10,6 @@
     "check": "node --check server.js && node --check api/requests.js && node --check src/requests.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": "22.x"
   }
 }
