@@ -82,7 +82,7 @@ export async function handleRequest({ method, headers = {}, body = {} }) {
     }
     const updated = await supabase(`${TABLE}?id=eq.${encodeURIComponent(id)}&select=id`, {
       method: 'PATCH',
-      headers: { Prefer: 'return=representation' },
+      headers: { Prefer: 'return=minimal' },
       body: JSON.stringify({ status: body.status, category: body.category })
     });
     if (!Array.isArray(updated) || updated.length === 0) return json(404, { ok: false, error: 'درخواست پیدا نشد.' });
