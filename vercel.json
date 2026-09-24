@@ -2,7 +2,7 @@
   "version": 2,
   "cleanUrls": false,
   "functions": {
-    "api/requests.js": { "maxDuration": 10 }
+    "api/requests.js": { "maxDuration": 60 }
   },
   "headers": [
     {
