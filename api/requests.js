@@ -30,7 +30,10 @@ export default async function handler(req, res) {
 
   try {
     const result = await handleRequest({ method: req.method, headers: req.headers || {}, body });
-    return res.status(result.status).set(result.headers).json(result.body);
+    for (const [name, value] of Object.entries(result.headers)) {
+      res.setHeader(name, value);
+    }
+    return res.status(result.status).json(result.body);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ ok: false, error: 'خطای داخلی سرور. تنظیمات اتصال را بررسی کنید.' });
