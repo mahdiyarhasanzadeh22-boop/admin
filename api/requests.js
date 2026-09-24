@@ -1,7 +1,7 @@
 import { handleRequest } from '../src/requests.js';
 
 function corsOrigin(requestOrigin) {
-  const allowed = (process.env.ALLOWED_ORIGINS || '').split(',').map((item) => item.trim()).filter(Boolean);
+  const allowed = [...new Set([...(process.env.ALLOWED_ORIGINS || '').split(',').map((item) => item.trim()).filter(Boolean), 'https://mahdiyarstudio.vercel.app'])];
   if (!requestOrigin) return allowed[0] || '*';
   return allowed.length === 0 || allowed.includes(requestOrigin) ? requestOrigin : '';
 }
