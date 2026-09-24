@@ -7,9 +7,10 @@
   "scripts": {
     "dev": "node --watch local-server.js",
     "start": "node local-server.js",
-    "check": "node --check server.js && node --check api/requests.js && node --check src/requests.js"
+    "check": "node --check local-server.js && node --check api/requests.js && node --check src/requests.js"
   },
   "engines": {
     "node": "22.x"
   }
 }
+

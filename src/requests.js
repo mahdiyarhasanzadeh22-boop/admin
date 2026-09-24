@@ -1,5 +1,8 @@
+import { randomUUID } from 'node:crypto';
+
 const TABLE = 'requests';
 const ALLOWED_STATUS = new Set(['جدید', 'در حال بررسی', 'تکمیل‌شده']);
+const ALLOWED_CATEGORIES = new Set(['عمومی', 'پوستر', 'هویت بصری', 'شبکه‌های اجتماعی']);
 
 function requiredEnv(name) {
   const value = process.env[name]?.trim();
@@ -18,6 +21,7 @@ function normalize(value, max = 4000) {
 
 function publicRow(data) {
   return {
+    id: randomUUID(),
     full_name: normalize(data.fullName, 120),
     phone: normalize(data.phone, 40),
     email: normalize(data.email, 160).toLowerCase(),
@@ -54,9 +58,15 @@ function json(status, body, headers = {}) {
   return { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...headers }, body };
 }
 
-export async function handleRequest({ method, query = {}, body = {} }) {
+function bearerToken(headers = {}) {
+  const value = headers.authorization || headers.Authorization || '';
+  const match = String(value).match(/^Bearer\s+(.+)$/i);
+  return match ? match[1].trim() : '';
+}
+
+export async function handleRequest({ method, headers = {}, body = {} }) {
   if (method === 'GET') {
-    if (!adminAuthorized(query.token)) return json(401, { ok: false, error: 'Unauthorized' });
+    if (!adminAuthorized(bearerToken(headers))) return json(401, { ok: false, error: 'Unauthorized' });
     const rows = await supabase(`${TABLE}?select=*&order=created_at.desc`);
     return json(200, { ok: true, rows });
   }
@@ -65,14 +75,17 @@ export async function handleRequest({ method, query = {}, body = {} }) {
   if (body.website) return json(202, { ok: true });
 
   if (body.action === 'update') {
-    if (!adminAuthorized(body.token)) return json(401, { ok: false, error: 'Unauthorized' });
-    const status = ALLOWED_STATUS.has(body.status) ? body.status : 'جدید';
-    const category = normalize(body.category, 80) || 'عمومی';
-    await supabase(`${TABLE}?id=eq.${encodeURIComponent(normalize(body.id, 80))}`, {
+    if (!adminAuthorized(bearerToken(headers))) return json(401, { ok: false, error: 'Unauthorized' });
+    const id = normalize(body.id, 80);
+    if (!id || !ALLOWED_STATUS.has(body.status) || !ALLOWED_CATEGORIES.has(body.category)) {
+      return json(422, { ok: false, error: 'وضعیت یا دسته‌بندی معتبر نیست.' });
+    }
+    const updated = await supabase(`${TABLE}?id=eq.${encodeURIComponent(id)}&select=id`, {
       method: 'PATCH',
-      headers: { Prefer: 'return=minimal' },
-      body: JSON.stringify({ status, category })
+      headers: { Prefer: 'return=representation' },
+      body: JSON.stringify({ status: body.status, category: body.category })
     });
+    if (!Array.isArray(updated) || updated.length === 0) return json(404, { ok: false, error: 'درخواست پیدا نشد.' });
     return json(200, { ok: true });
   }
 
@@ -89,3 +102,4 @@ export async function handleRequest({ method, query = {}, body = {} }) {
 }
 
 export { adminAuthorized };
+
